@@ -105,6 +105,46 @@ const file = await fetch(
 const buffer = await file.arrayBuffer();
 const model = await fragments.load(buffer, { modelId: "example" });
 
+const localIds = Object.values(
+    await model.getItemsOfCategories([/IFCCOLUMN/])
+).flat();
+
+const requests: FRAGS.EditRequest[] = [];
+
+const newMaterial:FRAGS.RawMaterial = {
+   r: 255,
+   g: 0,
+   b: 0,
+   a: 255,
+   renderedFaces: 0,
+   stroke: 0,
+};
+
+requests.push({
+   type: FRAGS.EditRequestType.CREATE_MATERIAL,
+   tempId: "new-material",
+   data: newMaterial,
+});
+
+
+const globalTransformIds = new Set(
+   await model.getGlobalTranformsIdsOfItems(localIds),
+);
+
+const samples = await model.getSamples();
+for (const [localId, sample] of samples) {
+   if (globalTransformIds.has(sample.item)) {
+       requests.push({
+           type: FRAGS.EditRequestType.UPDATE_SAMPLE,
+           localId,
+           data: { ...sample, material: "new-material" },
+       });
+   }
+}
+
+// await fragments.editor.edit(model.modelId, requests);
+// await fragments.update(true);
+
 /* MD
   ### 🤏 Setting Up Raycaster
   Each Fragments Model comes with built-in methods to retrieve information about what lies beneath the mouse pointer (raycasting). To make this process more versatile, let's create a utility function that performs raycasting across all models loaded in the scene and returns the closest result:

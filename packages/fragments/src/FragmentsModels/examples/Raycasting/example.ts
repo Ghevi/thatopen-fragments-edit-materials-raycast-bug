@@ -142,8 +142,8 @@ for (const [localId, sample] of samples) {
    }
 }
 
-// await fragments.editor.edit(model.modelId, requests);
-// await fragments.update(true);
+await fragments.editor.edit(model.modelId, requests);
+await fragments.update(true);
 
 /* MD
   ### 🤏 Setting Up Raycaster
